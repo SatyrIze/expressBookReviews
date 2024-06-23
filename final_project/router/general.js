@@ -3,7 +3,9 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios');
 
+let reviews = [];
 
 public_users.post("/register", (req,res) => {
   //Write your code here
@@ -14,6 +16,18 @@ public_users.post("/register", (req,res) => {
 public_users.get('/',function (req, res) {
   res.send(JSON.stringify(books,null,2))
 });
+
+public_users.get('/books', async (req, res) => {
+  try {
+    const response = await axios.get('http://localhost:5000/booksdb.js');
+    res.send(response.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch book list' });
+  }
+});
+
+
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
@@ -59,5 +73,27 @@ public_users.get('/review/:isbn',function (req, res) {
     res.status(404).json({ message: "Review not found for the given ISBN" });
   }
 });
+
+
+
+public_users.post("/register", (req,res) => {
+  const username = req.query.username;
+  const password = req.query.password;
+
+  if (!username || !password) {
+      return res.status(400).json({message: "Username and password are required!"});
+    }
+  
+    if (username && password) {
+      if (!doesExist(username)) { 
+        users.push({"username":username,"password":password});
+        return res.status(200).json({message: "User successfully registered. Now you can login"});
+      } else {
+        return res.status(409).json({message: "User already exists!"});    
+      }
+    } 
+    return res.status(500).json({message: "Unable to register user."});
+  });
+
 
 module.exports.general = public_users;
