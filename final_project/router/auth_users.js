@@ -28,14 +28,14 @@ const authenticatedUser = (username,password)=>{
   }
 }
 
-regd_users.use(session({
+regd_users.use("/customer",session({
   secret: "fingerprint_customer",
   resave: true,
   saveUninitialized: true,
   cookie: { secure: false },
 }))
 
-regd_users.post("/login", (req,res) => {
+regd_users.post("/customer/login", (req,res) => {
   const username = req.query.username;
   const password = req.query.password;
 
